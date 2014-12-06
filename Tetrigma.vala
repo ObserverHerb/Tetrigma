@@ -2,7 +2,21 @@
 // because enum will allow me to easily add intermediate states later
 enum State {ON,OFF;}
 
+// abstraction of a pattern, the fundamental data type that
+// game pieces and moves are made of
+struct PatternRow
+{
+	public State a;
+	public State b;
+	public State c;
+}
 
+struct Pattern
+{
+	public PatternRow A;
+	public PatternRow B;
+	public PatternRow C;
+}
 
 
 //////// ****** --- begin class declarations --- ****** ////////
@@ -48,20 +62,18 @@ class GameBoard : Gtk.Grid
 	public GamePiece* Cb;
 	public GamePiece* Cc;
 
-	public GameBoard(State iAa,State iAb,State iAc, // i stands for 'initial'
-		State iBa,State iBb,State iBc,
-		State iCa,State iCb,State iCc) 
+	public GameBoard(Pattern initial_pattern) 
 	{
 		// create game pieces with an initial state
-		Aa=new GamePiece(iAa);
-		Ab=new GamePiece(iAb);
-		Ac=new GamePiece(iAc);
-		Ba=new GamePiece(iBa);
-		Bb=new GamePiece(iBb);
-		Bc=new GamePiece(iBc);
-		Ca=new GamePiece(iCa);
-		Cb=new GamePiece(iCb);
-		Cc=new GamePiece(iCc);
+		Aa=new GamePiece(initial_pattern.A.a);
+		Ab=new GamePiece(initial_pattern.A.b);
+		Ac=new GamePiece(initial_pattern.A.c);
+		Ba=new GamePiece(initial_pattern.B.a);
+		Bb=new GamePiece(initial_pattern.B.b);
+		Bc=new GamePiece(initial_pattern.B.c);
+		Ca=new GamePiece(initial_pattern.C.a);
+		Cb=new GamePiece(initial_pattern.C.b);
+		Cc=new GamePiece(initial_pattern.C.c);
 		
 		// attach them to the grid
 		this.attach(Aa,0,0,1,1);
@@ -106,6 +118,21 @@ int main(string[] args)
 	Gtk.init(ref args);
 	/** -- Gtk stuff begun -- **/
 
+
+	// * Create initial patterns
+	var pattern_blank=Pattern()
+	{
+		A=PatternRow(){a=State.OFF,b=State.OFF,c=State.OFF},
+		B=PatternRow(){a=State.OFF,b=State.OFF,c=State.OFF},
+		C=PatternRow(){a=State.OFF,b=State.OFF,c=State.OFF}
+	};
+	var pattern_a=Pattern()
+	{
+		A=PatternRow(){a=State.ON,b=State.ON,c=State.ON},
+		B=PatternRow(){a=State.OFF,b=State.OFF,c=State.OFF},
+		C=PatternRow(){a=State.ON,b=State.ON,c=State.ON}
+	};
+
 		
 	// * Create window
 	var window=new Gtk.Window(); // TODO: Does this need deleted later?
@@ -132,16 +159,12 @@ int main(string[] args)
 	grid.set_column_homogeneous(true);
 
 	// Create game board and set initial states of game pieces	
-	var game_board=new GameBoard(State.ON,State.OFF,State.OFF,
-		State.OFF,State.OFF,State.OFF,
-		State.OFF,State.ON,State.OFF);
+	var game_board=new GameBoard(pattern_blank);
 	grid.attach(game_board,0,0,3,3);
 	
 	// Create buttons that represent moves	
 	var move_a=new Gtk.Button();
-	var move_a_pattern=new GameBoard(State.ON,State.ON,State.ON,
-		State.OFF,State.OFF,State.OFF,
-		State.ON,State.ON,State.ON);
+	var move_a_pattern=new GameBoard(pattern_a);
 	move_a.add(move_a_pattern);
 	grid.attach(move_a,0,3,1,1);
 	
