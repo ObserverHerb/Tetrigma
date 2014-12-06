@@ -120,6 +120,7 @@ int main(string[] args)
 
 
 	// * Create initial patterns
+	// TODO: load these from external sources
 	var pattern_blank=Pattern()
 	{
 		A=PatternRow(){a=State.OFF,b=State.OFF,c=State.OFF},
@@ -132,10 +133,28 @@ int main(string[] args)
 		B=PatternRow(){a=State.OFF,b=State.OFF,c=State.OFF},
 		C=PatternRow(){a=State.ON,b=State.ON,c=State.ON}
 	};
+	var pattern_b=Pattern()
+	{
+		A=PatternRow(){a=State.ON,b=State.OFF,c=State.ON},
+		B=PatternRow(){a=State.ON,b=State.OFF,c=State.ON},
+		C=PatternRow(){a=State.ON,b=State.OFF,c=State.ON}
+	};
+	var pattern_c=Pattern()
+	{
+		A=PatternRow(){a=State.ON,b=State.OFF,c=State.ON},
+		B=PatternRow(){a=State.OFF,b=State.ON,c=State.OFF},
+		C=PatternRow(){a=State.ON,b=State.OFF,c=State.ON}
+	};
+	var pattern_d=Pattern()
+	{
+		A=PatternRow(){a=State.OFF,b=State.ON,c=State.OFF},
+		B=PatternRow(){a=State.ON,b=State.ON,c=State.ON},
+		C=PatternRow(){a=State.OFF,b=State.ON,c=State.OFF}
+	};
 
 		
 	// * Create window
-	var window=new Gtk.Window(); // TODO: Does this need deleted later?
+	var window=new Gtk.Window();
 	window.title="Tetrigma";
 	window.set_border_width(12);
 	window.set_position(Gtk.WindowPosition.CENTER);
@@ -149,7 +168,6 @@ int main(string[] args)
 		min_aspect=1.0,
 		max_aspect=1.0
 	};
-
 	window.set_geometry_hints((Gtk.Widget)null,geometry,Gdk.WindowHints.ASPECT);
 	
 
@@ -162,12 +180,28 @@ int main(string[] args)
 	var game_board=new GameBoard(pattern_blank);
 	grid.attach(game_board,0,0,3,3);
 	
-	// Create buttons that represent moves	
-	var move_a=new Gtk.Button();
+	
+	// * Create buttons that represent moves	
+	var move_a=new Gtk.Button();					// a
 	var move_a_pattern=new GameBoard(pattern_a);
 	move_a.add(move_a_pattern);
 	grid.attach(move_a,0,3,1,1);
+
+	var move_b=new Gtk.Button();					// b
+	var move_b_pattern=new GameBoard(pattern_b);
+	move_b.add(move_b_pattern);
+	grid.attach(move_b,1,3,1,1);
 	
+	var move_c=new Gtk.Button();					// c
+	var move_c_pattern=new GameBoard(pattern_c);
+	move_c.add(move_c_pattern);
+	grid.attach(move_c,2,3,1,1);
+	
+	var move_d=new Gtk.Button();					// d
+	var move_d_pattern=new GameBoard(pattern_d);
+	move_d.add(move_d_pattern);
+	grid.attach(move_d,3,3,1,1);
+
 
 	/** -- Gtk stuff ending -- **/
 	grid.show();
