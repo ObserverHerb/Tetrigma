@@ -137,13 +137,13 @@ int main(string[] args)
 		State.OFF,State.ON,State.OFF);
 	grid.attach(game_board,0,0,3,3);
 	
-	
-	
-	var button=new Gtk.Button();
-	var test=new Gtk.EventBox();
-	test.override_background_color(Gtk.StateFlags.NORMAL,Gdk.RGBA(){red=1.0,green=1.0,blue=1.0,alpha=1.0});
-	button.add(test);
-	grid.attach(button,0,3,1,1);
+	// Create buttons that represent moves	
+	var move_a=new Gtk.Button();
+	var move_a_pattern=new GameBoard(State.ON,State.ON,State.ON,
+		State.OFF,State.OFF,State.OFF,
+		State.ON,State.ON,State.ON);
+	move_a.add(move_a_pattern);
+	grid.attach(move_a,0,3,1,1);
 	
 
 	/** -- Gtk stuff ending -- **/
