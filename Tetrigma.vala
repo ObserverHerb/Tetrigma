@@ -105,6 +105,27 @@ class GameBoard : Gtk.Grid
 	}
 }
 
+/****\
+|  -- MoveButton class --
+|		A button that sets itself up with a picture of a pattern.
+\****/
+class MoveButton : Gtk.Button
+{
+	private GameBoard* move_pattern;
+	
+	public MoveButton(Pattern pattern)
+	{
+		move_pattern=new GameBoard(pattern);
+		this.add(move_pattern);
+	}
+	
+	~MoveButton()
+	{
+		delete move_pattern;
+	}
+}
+
+
 
 
 //////// ****** --- begin functions --- ****** ////////
@@ -180,33 +201,20 @@ int main(string[] args)
 	var game_board=new GameBoard(pattern_blank);
 	grid.attach(game_board,0,0,3,3);
 	
-	
-	// * Create buttons that represent moves	
-	var move_a=new Gtk.Button();					// a
-	var move_a_pattern=new GameBoard(pattern_a);
-	move_a.add(move_a_pattern);
+	// Create buttons that represent moves	
+	var move_a=new MoveButton(pattern_a);
 	grid.attach(move_a,0,3,1,1);
-
-	var move_b=new Gtk.Button();					// b
-	var move_b_pattern=new GameBoard(pattern_b);
-	move_b.add(move_b_pattern);
+	var move_b=new MoveButton(pattern_b);
 	grid.attach(move_b,1,3,1,1);
-	
-	var move_c=new Gtk.Button();					// c
-	var move_c_pattern=new GameBoard(pattern_c);
-	move_c.add(move_c_pattern);
+	var move_c=new MoveButton(pattern_c);
 	grid.attach(move_c,2,3,1,1);
-	
-	var move_d=new Gtk.Button();					// d
-	var move_d_pattern=new GameBoard(pattern_d);
-	move_d.add(move_d_pattern);
+	var move_d=new MoveButton(pattern_d);
 	grid.attach(move_d,3,3,1,1);
 
 
 	/** -- Gtk stuff ending -- **/
 	grid.show();
 	window.add(grid);
-	//window.add(Aa);
 	window.show_all();
 	Gtk.main(); // TODO: actually I think this is the main event/message loop
 	return 0; //
