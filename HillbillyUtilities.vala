@@ -31,7 +31,7 @@ public class Stack<G> // G stands for "Generic"
 		}
 	}
 	
-	public void push(G item)
+	public void Push(G item)
 	{
 		Node<G> *tmp=new Node<G>();
 		tmp->next=top;
@@ -39,7 +39,7 @@ public class Stack<G> // G stands for "Generic"
 		top=tmp;
 	}
 	
-	public G pop()
+	public G Pop()
 	{	
 		Node<G> *tmp=top;
 		G item=top->item;
@@ -48,8 +48,8 @@ public class Stack<G> // G stands for "Generic"
 		return item;
 	}
 	
-	public G peek()
+	public G Peek()
 	{
-		return top->item;
+		return top->item; // TODO: this is a problem if the stack is empty, isn't it?
 	}
 }

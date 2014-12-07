@@ -11,8 +11,8 @@ struct PatternRow
 	public State c;
 }
 
-struct Pattern
-{
+class Pattern 				// this had to be changed to a class because structs
+{							// can't be used with generic types
 	public PatternRow A;
 	public PatternRow B;
 	public PatternRow C;
@@ -36,8 +36,22 @@ class GamePiece : Gtk.EventBox
 	public GamePiece(State initial_state)
 	{
 		state=initial_state;
-		
-		if (initial_state==State.ON)
+		Update();
+	}
+	
+	public void Toggle() // switch state and recolor
+	{
+		if (state==State.ON)
+			state=State.OFF;
+		else
+			state=State.ON;
+			
+		Update();
+	}
+	
+	private void Update() // color the background according to the state
+	{
+		if (state==State.ON)
 			this.override_background_color(Gtk.StateFlags.NORMAL,ON_COLOR);
 		else
 			this.override_background_color(Gtk.StateFlags.NORMAL,OFF_COLOR);
@@ -52,6 +66,10 @@ class GamePiece : Gtk.EventBox
 \****/
 class GameBoard : Gtk.Grid
 {
+	Stack<Pattern> stack; // the stack of moves on the game board
+						  // TODO: shouldn't this eventually be static
+						  // once I fix peek() in Stack class?
+
 	public GamePiece* Aa; // TODO: oh c'mon, there has to be some way to get
 	public GamePiece* Ab; // all of this on one line
 	public GamePiece* Ac;
@@ -89,6 +107,10 @@ class GameBoard : Gtk.Grid
 		// make sure all nine squares are equal size
 		this.set_row_homogeneous(true);
 		this.set_column_homogeneous(true);
+		
+		// push the first pattern onto the stack
+		stack.Push(initial_pattern); // TODO: this will need to test for an empty stack
+									 // before doing this once I make stack static
 	}
 	
 	~GameBoard() // call me anal, but I want to do my own deletes
@@ -103,6 +125,24 @@ class GameBoard : Gtk.Grid
 		delete Cb;
 		delete Cc;
 	}
+	
+	public void Merge(Pattern new_pattern)
+	{
+		if (new_pattern.A.a==State.ON) {Aa->Toggle();}
+		
+		// decide whether we're adding or removing a game piece
+		// and change stack accordingly
+		if (stack.Peek()==new_pattern)
+		{
+			stack.Pop();
+			stdout.printf ("Stack popped.\n");
+		}
+		else
+		{
+			stack.Push(new_pattern);
+			stdout.printf ("Stack pushed.\n");
+		}
+	}
 }
 
 /****\
@@ -111,17 +151,16 @@ class GameBoard : Gtk.Grid
 \****/
 class MoveButton : Gtk.Button
 {
-	private GameBoard* move_pattern;
+	private Pattern pattern;
 	
-	public MoveButton(Pattern pattern)
+	public MoveButton(Pattern load_pattern)
 	{
-		move_pattern=new GameBoard(pattern);
-		this.add(move_pattern);
+		pattern=load_pattern;
+		this.add(new GameBoard(pattern));
 	}
 	
 	~MoveButton()
 	{
-		delete move_pattern;
 	}
 }
 
@@ -143,31 +182,37 @@ int main(string[] args)
 
 	// * Create initial patterns
 	// TODO: load these from external sources
-	var pattern_blank=Pattern()
+	var pattern_blank=new Pattern()
 	{
 		A=PatternRow(){a=State.OFF,b=State.OFF,c=State.OFF},
 		B=PatternRow(){a=State.OFF,b=State.OFF,c=State.OFF},
 		C=PatternRow(){a=State.OFF,b=State.OFF,c=State.OFF}
 	};
-	var pattern_a=Pattern()
+	var pattern_a=new Pattern()
 	{
 		A=PatternRow(){a=State.ON,b=State.ON,c=State.ON},
 		B=PatternRow(){a=State.OFF,b=State.OFF,c=State.OFF},
 		C=PatternRow(){a=State.ON,b=State.ON,c=State.ON}
 	};
-	var pattern_b=Pattern()
+	var pattern_b=new Pattern()
 	{
 		A=PatternRow(){a=State.ON,b=State.OFF,c=State.ON},
 		B=PatternRow(){a=State.ON,b=State.OFF,c=State.ON},
 		C=PatternRow(){a=State.ON,b=State.OFF,c=State.ON}
 	};
-	var pattern_c=Pattern()
+	var pattern_c=new Pattern()
 	{
 		A=PatternRow(){a=State.ON,b=State.OFF,c=State.ON},
 		B=PatternRow(){a=State.OFF,b=State.ON,c=State.OFF},
 		C=PatternRow(){a=State.ON,b=State.OFF,c=State.ON}
 	};
-	var pattern_d=Pattern()
+	var pattern_d=new Pattern()
+	{
+		A=PatternRow(){a=State.OFF,b=State.ON,c=State.OFF},
+		B=PatternRow(){a=State.ON,b=State.ON,c=State.ON},
+		C=PatternRow(){a=State.OFF,b=State.ON,c=State.OFF}
+	};
+	var pattern_e=new Pattern()
 	{
 		A=PatternRow(){a=State.OFF,b=State.ON,c=State.OFF},
 		B=PatternRow(){a=State.ON,b=State.ON,c=State.ON},
@@ -204,6 +249,7 @@ int main(string[] args)
 	
 	// Create buttons that represent moves	
 	var move_a=new MoveButton(pattern_a);
+	move_a.clicked.connect(()=>{ game_board.Merge(pattern_a); });
 	grid.attach(move_a,0,3,1,1);
 	var move_b=new MoveButton(pattern_b);
 	grid.attach(move_b,1,3,1,1);
@@ -211,6 +257,14 @@ int main(string[] args)
 	grid.attach(move_c,2,3,1,1);
 	var move_d=new MoveButton(pattern_d);
 	grid.attach(move_d,3,3,1,1);
+	
+	
+	var label=new Gtk.Label("");
+	grid.attach(label,3,0,1,3);
+	// test case to see if operator== works on classes
+	bool test=pattern_d==pattern_e;
+	label.set_text(test.to_string());
+	
 	
 	
 
