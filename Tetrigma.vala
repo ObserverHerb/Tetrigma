@@ -61,7 +61,7 @@ class GameBoard : Gtk.Grid
 	public GamePiece* Ca;
 	public GamePiece* Cb;
 	public GamePiece* Cc;
-
+	
 	public GameBoard(Pattern initial_pattern) 
 	{
 		// create game pieces with an initial state
@@ -140,6 +140,7 @@ int main(string[] args)
 	/** -- Gtk stuff begun -- **/
 
 
+
 	// * Create initial patterns
 	// TODO: load these from external sources
 	var pattern_blank=Pattern()
@@ -210,6 +211,8 @@ int main(string[] args)
 	grid.attach(move_c,2,3,1,1);
 	var move_d=new MoveButton(pattern_d);
 	grid.attach(move_d,3,3,1,1);
+	
+	
 
 
 	/** -- Gtk stuff ending -- **/

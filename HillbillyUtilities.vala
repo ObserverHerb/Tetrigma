@@ -1,0 +1,55 @@
+/****\
+|  -- Stack class --
+|		Quick implementation of a basic LIFO stack
+|		with simple push, pop, and peek functionality
+|		using generics
+\****/
+public class Stack<G> // G stands for "Generic"
+{
+	// create a data type that is aware of the previous guy in line
+	private class Node<G>		// made this a class because valac complains when I try
+	{							// to use the new operator on it as a struct
+		public Node<G> *next;
+		public G item;
+	}
+	
+	// pointer to the top item on the stack
+	private Node<G> *top;
+
+	public Stack()
+	{
+		top=null;
+	}
+	
+	~Stack()
+	{
+		while(top!=null)
+		{
+			Node<G> *tmp=top;
+			top=top->next;
+			delete tmp;
+		}
+	}
+	
+	public void push(G item)
+	{
+		Node<G> *tmp=new Node<G>();
+		tmp->next=top;
+		tmp->item=item;
+		top=tmp;
+	}
+	
+	public G pop()
+	{	
+		Node<G> *tmp=top;
+		G item=top->item;
+		top=top->next;
+		delete tmp;
+		return item;
+	}
+	
+	public G peek()
+	{
+		return top->item;
+	}
+}
