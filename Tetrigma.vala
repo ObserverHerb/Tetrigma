@@ -1,9 +1,28 @@
+//////// ****** --- begin globals --- ****** ////////
+
+// These need to stay consistent as the rest of the interface changes, and they may
+// need adjusted to assure that. They move around in the codebase as I'm refactoring,
+// so this will allow me to adjust the entire grid in one place
+const int GAMEBOARD_X=0; const int GAMEBOARD_Y=0; const int GAMEBOARD_W=3; const int GAMEBOARD_H=3;
+const int MOVE_A_X=0; const int MOVE_A_Y=3; const int MOVE_A_W=1; const int MOVE_A_H=1;
+const int MOVE_B_X=1; const int MOVE_B_Y=3; const int MOVE_B_W=1; const int MOVE_B_H=1;
+const int MOVE_C_X=2; const int MOVE_C_Y=3; const int MOVE_C_W=1; const int MOVE_C_H=1;
+const int MOVE_D_X=3; const int MOVE_D_Y=3; const int MOVE_D_W=1; const int MOVE_D_H=1;
+
 // Even though I'm only using on/off for now, I'm favoring enum over bool
 // because enum will allow me to easily add intermediate states later
 enum State {ON,OFF;}
 
-// abstraction of a pattern, the fundamental data type that
-// game pieces and moves are made of
+
+
+
+//////// ****** --- begin class declarations --- ****** ////////
+
+/****\
+|  -- Pattern class --
+|       Breaking down the rows allows me to refer to a
+|       Pattern's 9 blocks with Row.column syntax
+\****/
 class PatternRow
 {
 	public State a;
@@ -18,6 +37,11 @@ class PatternRow
 	}
 }
 
+/****\
+|  -- Pattern class --
+|		A pattern is a list of state flags that represent
+|		the on/off states of the 9 pieces that make up a move
+\****/
 class Pattern 				// this had to be changed to a class because structs
 {							// can't be used with generic types
 	public PatternRow A;
@@ -53,9 +77,6 @@ class Pattern 				// this had to be changed to a class because structs
 		}
 	}
 }
-
-
-//////// ****** --- begin class declarations --- ****** ////////
 
 /****\
 |  -- GamePiece class --
@@ -251,21 +272,21 @@ class Game
 
 		// Create game board and set initial states of game pieces	
 		board=new GameBoard(pattern_blank);
-		grid.attach(board,0,0,3,3);
+		grid.attach(board,GAMEBOARD_X,GAMEBOARD_Y,GAMEBOARD_W,GAMEBOARD_H);
 		
 		// Create buttons that represent moves	
 		move_a=new MoveButton(pattern_a);
 		move_a.clicked.connect(()=>{ board.Merge(pattern_a); });
-		grid.attach(move_a,0,3,1,1);
+		grid.attach(move_a,MOVE_A_X,MOVE_A_Y,MOVE_A_W,MOVE_A_H);
 		move_b=new MoveButton(pattern_b);
 		move_b.clicked.connect(()=>{ board.Merge(pattern_b); });
-		grid.attach(move_b,1,3,1,1);
+		grid.attach(move_b,MOVE_B_X,MOVE_B_Y,MOVE_B_W,MOVE_B_H);
 		move_c=new MoveButton(pattern_c);
 		move_c.clicked.connect(()=>{ board.Merge(pattern_c); });
-		grid.attach(move_c,2,3,1,1);
+		grid.attach(move_c,MOVE_C_X,MOVE_C_Y,MOVE_C_W,MOVE_C_H);
 		move_d=new MoveButton(pattern_d);
 		move_d.clicked.connect(()=>{ board.Merge(pattern_d); });
-		grid.attach(move_d,3,3,1,1);
+		grid.attach(move_d,MOVE_D_X,MOVE_D_Y,MOVE_D_W,MOVE_D_H);
 	}
 	
 	public void New(int depth)
@@ -331,8 +352,8 @@ int main(string[] args)
 	game.New(2);
 
 	
-	var label=new Gtk.Label("");
-	grid.attach(label,3,0,1,3);
+	//var label=new Gtk.Label("");
+	//grid.attach(label,3,0,1,3);
 	// test case to see if operator== works on classes
 	//label.set_text(pattern_c.Compare(pattern_e).to_string());
 	
