@@ -165,8 +165,15 @@ class GameBoard : Gtk.Grid
 	
 	public void Merge(Pattern new_pattern)
 	{
-		if (new_pattern.A.a==State.ON) {Aa->Toggle();} // this block should be in the pattern class
-														// as a Toggle() member, not here
+		if (new_pattern.A.a==State.ON) {Aa->Toggle();} // TODO: this block should be in the pattern class
+		if (new_pattern.A.b==State.ON) {Ab->Toggle();} // as a Toggle() member, not here
+		if (new_pattern.A.c==State.ON) {Ac->Toggle();}
+		if (new_pattern.B.a==State.ON) {Ba->Toggle();}
+		if (new_pattern.B.b==State.ON) {Bb->Toggle();}
+		if (new_pattern.B.c==State.ON) {Bc->Toggle();}
+		if (new_pattern.C.a==State.ON) {Ca->Toggle();}
+		if (new_pattern.C.b==State.ON) {Cb->Toggle();}
+		if (new_pattern.C.c==State.ON) {Cc->Toggle();}
 		
 		// decide whether we're adding or removing a game piece
 		// and change stack accordingly
@@ -181,6 +188,15 @@ class GameBoard : Gtk.Grid
 			stack.Push(new_pattern);
 			stdout.printf ("Stack pushed.\n");
 		}
+	}
+	
+	public void New(int depth)
+	{
+		/*for (int i=0; i<depth; i++)
+		{
+			switch (Random.int_range(0,3))
+			{
+				case 0: Merge*/
 	}
 }
 
@@ -270,12 +286,16 @@ int main(string[] args)
 	move_a.clicked.connect(()=>{ game_board.Merge(pattern_a); });
 	grid.attach(move_a,0,3,1,1);
 	var move_b=new MoveButton(pattern_b);
+	move_b.clicked.connect(()=>{ game_board.Merge(pattern_b); });
 	grid.attach(move_b,1,3,1,1);
 	var move_c=new MoveButton(pattern_c);
+	move_c.clicked.connect(()=>{ game_board.Merge(pattern_c); });
 	grid.attach(move_c,2,3,1,1);
 	var move_d=new MoveButton(pattern_d);
+	move_d.clicked.connect(()=>{ game_board.Merge(pattern_d); });
 	grid.attach(move_d,3,3,1,1);
 	
+	game_board.Merge(pattern_a);
 	
 	var label=new Gtk.Label("");
 	grid.attach(label,3,0,1,3);
