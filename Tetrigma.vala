@@ -4,11 +4,18 @@ enum State {ON,OFF;}
 
 // abstraction of a pattern, the fundamental data type that
 // game pieces and moves are made of
-struct PatternRow
+class PatternRow
 {
 	public State a;
 	public State b;
 	public State c;
+	
+	public PatternRow(State initial_a,State initial_b,State initial_c)
+	{
+		a=initial_a;
+		b=initial_b;
+		c=initial_c;
+	}
 }
 
 class Pattern 				// this had to be changed to a class because structs
@@ -16,6 +23,35 @@ class Pattern 				// this had to be changed to a class because structs
 	public PatternRow A;
 	public PatternRow B;
 	public PatternRow C;
+	
+	public Pattern(State Aa,State Ab,State Ac,
+					State Ba,State Bb,State Bc,
+					State Ca,State Cb,State Cc)
+	{
+		A=new PatternRow(Aa,Ab,Ac);
+		B=new PatternRow(Ba,Bb,Bc);
+		C=new PatternRow(Ca,Cb,Cc);
+	}
+
+	public bool Compare(Pattern pattern) // vala doesn't support operator overloading
+	{									  // so value have to be compared manually
+		if ( A.a==pattern.A.a &&
+			A.b==pattern.A.b &&
+			A.c==pattern.A.c &&
+			B.a==pattern.B.a &&
+			B.b==pattern.B.b &&
+			B.c==pattern.B.c &&
+			C.a==pattern.C.a &&
+			C.b==pattern.C.b &&
+			C.c==pattern.C.c )
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
 }
 
 
@@ -109,6 +145,7 @@ class GameBoard : Gtk.Grid
 		this.set_column_homogeneous(true);
 		
 		// push the first pattern onto the stack
+		stack=new Stack<Pattern>();
 		stack.Push(initial_pattern); // TODO: this will need to test for an empty stack
 									 // before doing this once I make stack static
 	}
@@ -128,11 +165,13 @@ class GameBoard : Gtk.Grid
 	
 	public void Merge(Pattern new_pattern)
 	{
-		if (new_pattern.A.a==State.ON) {Aa->Toggle();}
+		if (new_pattern.A.a==State.ON) {Aa->Toggle();} // this block should be in the pattern class
+														// as a Toggle() member, not here
 		
 		// decide whether we're adding or removing a game piece
 		// and change stack accordingly
-		if (stack.Peek()==new_pattern)
+		stdout.printf(stack.Peek().Compare(new_pattern).to_string()+"\n");
+		if (stack.Peek().Compare(new_pattern))
 		{
 			stack.Pop();
 			stdout.printf ("Stack popped.\n");
@@ -182,42 +221,21 @@ int main(string[] args)
 
 	// * Create initial patterns
 	// TODO: load these from external sources
-	var pattern_blank=new Pattern()
-	{
-		A=PatternRow(){a=State.OFF,b=State.OFF,c=State.OFF},
-		B=PatternRow(){a=State.OFF,b=State.OFF,c=State.OFF},
-		C=PatternRow(){a=State.OFF,b=State.OFF,c=State.OFF}
-	};
-	var pattern_a=new Pattern()
-	{
-		A=PatternRow(){a=State.ON,b=State.ON,c=State.ON},
-		B=PatternRow(){a=State.OFF,b=State.OFF,c=State.OFF},
-		C=PatternRow(){a=State.ON,b=State.ON,c=State.ON}
-	};
-	var pattern_b=new Pattern()
-	{
-		A=PatternRow(){a=State.ON,b=State.OFF,c=State.ON},
-		B=PatternRow(){a=State.ON,b=State.OFF,c=State.ON},
-		C=PatternRow(){a=State.ON,b=State.OFF,c=State.ON}
-	};
-	var pattern_c=new Pattern()
-	{
-		A=PatternRow(){a=State.ON,b=State.OFF,c=State.ON},
-		B=PatternRow(){a=State.OFF,b=State.ON,c=State.OFF},
-		C=PatternRow(){a=State.ON,b=State.OFF,c=State.ON}
-	};
-	var pattern_d=new Pattern()
-	{
-		A=PatternRow(){a=State.OFF,b=State.ON,c=State.OFF},
-		B=PatternRow(){a=State.ON,b=State.ON,c=State.ON},
-		C=PatternRow(){a=State.OFF,b=State.ON,c=State.OFF}
-	};
-	var pattern_e=new Pattern()
-	{
-		A=PatternRow(){a=State.OFF,b=State.ON,c=State.OFF},
-		B=PatternRow(){a=State.ON,b=State.ON,c=State.ON},
-		C=PatternRow(){a=State.OFF,b=State.ON,c=State.OFF}
-	};
+	var pattern_blank=new Pattern(State.OFF,State.OFF,State.OFF,
+									State.OFF,State.OFF,State.OFF,
+									State.OFF,State.OFF,State.OFF);
+	var pattern_a=new Pattern(State.ON,State.ON,State.ON,
+								State.OFF,State.OFF,State.OFF,
+								State.ON,State.ON,State.ON);
+	var pattern_b=new Pattern(State.ON,State.OFF,State.ON,
+								State.ON,State.OFF,State.ON,
+								State.ON,State.OFF,State.ON);
+	var pattern_c=new Pattern(State.ON,State.OFF,State.ON,
+								State.OFF,State.ON,State.OFF,
+								State.ON,State.OFF,State.ON);
+	var pattern_d=new Pattern(State.OFF,State.ON,State.OFF,
+								State.ON,State.ON,State.ON,
+								State.OFF,State.ON,State.OFF);
 
 		
 	// * Create window
@@ -262,8 +280,7 @@ int main(string[] args)
 	var label=new Gtk.Label("");
 	grid.attach(label,3,0,1,3);
 	// test case to see if operator== works on classes
-	bool test=pattern_d==pattern_e;
-	label.set_text(test.to_string());
+	//label.set_text(pattern_c.Compare(pattern_e).to_string());
 	
 	
 	
