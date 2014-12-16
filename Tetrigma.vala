@@ -189,15 +189,6 @@ class GameBoard : Gtk.Grid
 			stdout.printf ("Stack pushed.\n");
 		}
 	}
-	
-	public void New(int depth)
-	{
-		/*for (int i=0; i<depth; i++)
-		{
-			switch (Random.int_range(0,3))
-			{
-				case 0: Merge*/
-	}
 }
 
 /****\
@@ -219,6 +210,82 @@ class MoveButton : Gtk.Button
 	}
 }
 
+/****\
+|  -- Game class --
+|		Handles game logic and tracks game state
+\****/
+class Game
+{
+
+	Pattern pattern_blank;
+	Pattern pattern_a;
+	Pattern pattern_b;
+	Pattern pattern_c;
+	Pattern pattern_d;
+	
+	GameBoard board;
+	
+	MoveButton move_a;
+	MoveButton move_b;
+	MoveButton move_c;
+	MoveButton move_d;
+	
+	public Game(Gtk.Grid grid)
+	{
+		// TODO: load these from external sources
+		pattern_blank=new Pattern(State.OFF,State.OFF,State.OFF,
+										State.OFF,State.OFF,State.OFF,
+										State.OFF,State.OFF,State.OFF);
+		pattern_a=new Pattern(State.ON,State.ON,State.ON,
+									State.OFF,State.OFF,State.OFF,
+									State.ON,State.ON,State.ON);
+		pattern_b=new Pattern(State.ON,State.OFF,State.ON,
+									State.ON,State.OFF,State.ON,
+									State.ON,State.OFF,State.ON);
+		pattern_c=new Pattern(State.ON,State.OFF,State.ON,
+									State.OFF,State.ON,State.OFF,
+									State.ON,State.OFF,State.ON);
+		pattern_d=new Pattern(State.OFF,State.ON,State.OFF,
+									State.ON,State.ON,State.ON,
+									State.OFF,State.ON,State.OFF);
+
+		// Create game board and set initial states of game pieces	
+		board=new GameBoard(pattern_blank);
+		grid.attach(board,0,0,3,3);
+		
+		// Create buttons that represent moves	
+		move_a=new MoveButton(pattern_a);
+		move_a.clicked.connect(()=>{ board.Merge(pattern_a); });
+		grid.attach(move_a,0,3,1,1);
+		move_b=new MoveButton(pattern_b);
+		move_b.clicked.connect(()=>{ board.Merge(pattern_b); });
+		grid.attach(move_b,1,3,1,1);
+		move_c=new MoveButton(pattern_c);
+		move_c.clicked.connect(()=>{ board.Merge(pattern_c); });
+		grid.attach(move_c,2,3,1,1);
+		move_d=new MoveButton(pattern_d);
+		move_d.clicked.connect(()=>{ board.Merge(pattern_d); });
+		grid.attach(move_d,3,3,1,1);
+	}
+	
+	public void New(int depth)
+	{
+		// TODO: add code that will use a unique pattern
+		// so that we don't accidentally pop creating initial state
+		
+		// randomly create a stack of patterns
+		for (int i=0; i<depth; i++)
+		{
+			switch (Random.int_range(0,3))
+			{
+				case 0: board.Merge(pattern_a); break;
+				case 1: board.Merge(pattern_b); break;
+				case 2: board.Merge(pattern_c); break;
+				case 3: board.Merge(pattern_d); break;
+			}
+		}
+	}
+}
 
 
 
@@ -235,25 +302,6 @@ int main(string[] args)
 
 
 
-	// * Create initial patterns
-	// TODO: load these from external sources
-	var pattern_blank=new Pattern(State.OFF,State.OFF,State.OFF,
-									State.OFF,State.OFF,State.OFF,
-									State.OFF,State.OFF,State.OFF);
-	var pattern_a=new Pattern(State.ON,State.ON,State.ON,
-								State.OFF,State.OFF,State.OFF,
-								State.ON,State.ON,State.ON);
-	var pattern_b=new Pattern(State.ON,State.OFF,State.ON,
-								State.ON,State.OFF,State.ON,
-								State.ON,State.OFF,State.ON);
-	var pattern_c=new Pattern(State.ON,State.OFF,State.ON,
-								State.OFF,State.ON,State.OFF,
-								State.ON,State.OFF,State.ON);
-	var pattern_d=new Pattern(State.OFF,State.ON,State.OFF,
-								State.ON,State.ON,State.ON,
-								State.OFF,State.ON,State.OFF);
-
-		
 	// * Create window
 	var window=new Gtk.Window();
 	window.title="Tetrigma";
@@ -277,25 +325,11 @@ int main(string[] args)
 	grid.set_row_homogeneous(true);
 	grid.set_column_homogeneous(true);
 
-	// Create game board and set initial states of game pieces	
-	var game_board=new GameBoard(pattern_blank);
-	grid.attach(game_board,0,0,3,3);
-	
-	// Create buttons that represent moves	
-	var move_a=new MoveButton(pattern_a);
-	move_a.clicked.connect(()=>{ game_board.Merge(pattern_a); });
-	grid.attach(move_a,0,3,1,1);
-	var move_b=new MoveButton(pattern_b);
-	move_b.clicked.connect(()=>{ game_board.Merge(pattern_b); });
-	grid.attach(move_b,1,3,1,1);
-	var move_c=new MoveButton(pattern_c);
-	move_c.clicked.connect(()=>{ game_board.Merge(pattern_c); });
-	grid.attach(move_c,2,3,1,1);
-	var move_d=new MoveButton(pattern_d);
-	move_d.clicked.connect(()=>{ game_board.Merge(pattern_d); });
-	grid.attach(move_d,3,3,1,1);
-	
-	game_board.Merge(pattern_a);
+
+	// * Create main game
+	Game game=new Game(grid);
+	game.New(2);
+
 	
 	var label=new Gtk.Label("");
 	grid.attach(label,3,0,1,3);
@@ -304,7 +338,6 @@ int main(string[] args)
 	
 	
 	
-
 
 	/** -- Gtk stuff ending -- **/
 	grid.show();
