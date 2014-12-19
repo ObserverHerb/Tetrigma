@@ -251,6 +251,12 @@ class Game
 	MoveButton move_c;
 	MoveButton move_d;
 	
+	Gtk.Button new_game;	
+	Gtk.SpinButton depth_selector;
+	Gtk.Label current_depth_label;
+	
+	// This is the main game's constructor and it is actually here where the
+	// UI widgets are initialized
 	public Game(Gtk.Grid grid)
 	{
 		// TODO: load these from external sources
@@ -287,22 +293,51 @@ class Game
 		move_d=new MoveButton(pattern_d);
 		move_d.clicked.connect(()=>{ board.Merge(pattern_d); });
 		grid.attach(move_d,MOVE_D_X,MOVE_D_Y,MOVE_D_W,MOVE_D_H);
+		
+		// Button to start a new game
+		new_game=new Gtk.Button.with_label("New Game");
+		grid.attach(new_game,3,0,1,1);
+		new_game.clicked.connect(()=>{ New((int)depth_selector.value); });
+		
+		// Create a selector for how deep the initial stack of patterns is
+		depth_selector=new Gtk.SpinButton.with_range(2,100,1);
+		grid.attach(depth_selector,3,1,1,1);
+		
+		// What a silly name, but I wasn't using prefixes so it would be out of
+		// place to us lblDepth now
+		current_depth_label=new Gtk.Label("Current Depth");
+		grid.attach(current_depth_label,3,2,1,1);
 	}
 	
 	public void New(int depth)
 	{
-		// TODO: add code that will use a unique pattern
-		// so that we don't accidentally pop creating initial state
+		// There is no pattern four, so this guarantees
+		// an initial push
+		int previous_pattern=4;
 		
 		// randomly create a stack of patterns
 		for (int i=0; i<depth; i++)
 		{
-			switch (Random.int_range(0,3))
+			// pick a random pattern
+			int which_pattern=Random.int_range(0,3);
+			
+			// if it's the same pattern as before, re-roll
+			// else push the pattern to the stack
+			if (which_pattern==previous_pattern)
 			{
-				case 0: board.Merge(pattern_a); break;
-				case 1: board.Merge(pattern_b); break;
-				case 2: board.Merge(pattern_c); break;
-				case 3: board.Merge(pattern_d); break;
+				i--;
+			}
+			else
+			{
+				switch (which_pattern)
+				{
+					case 0: board.Merge(pattern_a); break;
+					case 1: board.Merge(pattern_b); break;
+					case 2: board.Merge(pattern_c); break;
+					case 3: board.Merge(pattern_d); break;
+				}
+				
+				previous_pattern=which_pattern;
 			}
 		}
 	}
@@ -349,13 +384,14 @@ int main(string[] args)
 
 	// * Create main game
 	Game game=new Game(grid);
-	game.New(2);
+	//game.New(2);
 
 	
 	//var label=new Gtk.Label("");
 	//grid.attach(label,3,0,1,3);
 	// test case to see if operator== works on classes
 	//label.set_text(pattern_c.Compare(pattern_e).to_string());
+	
 	
 	
 	
