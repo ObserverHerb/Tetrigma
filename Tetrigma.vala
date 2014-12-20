@@ -9,6 +9,8 @@ const int MOVE_B_X=1; const int MOVE_B_Y=3; const int MOVE_B_W=1; const int MOVE
 const int MOVE_C_X=2; const int MOVE_C_Y=3; const int MOVE_C_W=1; const int MOVE_C_H=1;
 const int MOVE_D_X=3; const int MOVE_D_Y=3; const int MOVE_D_W=1; const int MOVE_D_H=1;
 
+const string CURRENT_DEPTH_LABEL="Current\nDepth\n";
+
 // Even though I'm only using on/off for now, I'm favoring enum over bool
 // because enum will allow me to easily add intermediate states later
 enum State {ON,OFF;}
@@ -198,18 +200,31 @@ class GameBoard : Gtk.Grid
 		
 		// decide whether we're adding or removing a game piece
 		// and change stack accordingly
-		stdout.printf(stack.Peek().Compare(new_pattern).to_string()+"\n");
 		if (stack.Peek().Compare(new_pattern))
 		{
 			stack.Pop();
-			stdout.printf ("Stack popped.\n");
 		}
 		else
 		{
 			stack.Push(new_pattern);
-			stdout.printf ("Stack pushed.\n");
 		}
+		
+		UpdateDepth(); // =>() trigger member function from main Game class
 	}
+	
+	// returns the Depth member of the internal Stack member object
+	// This is used in updating the depth label outside of the GameBoard class
+	public int StackDepth()
+	{
+		return stack.Depth()-1; // subtract one because there will always be a blank
+								// pattern on the bottom of the stack that does not
+								// count toward the count of game pieces
+	}
+	
+	// The implementation of UpdateDepth is actually in the main Game class
+	// This connects to it since events the fire inside the GameBoard class
+	// need to trigger it
+	public signal void UpdateDepth();
 }
 
 /****\
@@ -278,19 +293,26 @@ class Game
 
 		// Create game board and set initial states of game pieces	
 		board=new GameBoard(pattern_blank);
+		board.UpdateDepth.connect(()=>{ this.UpdateDepth(); }); // since this class has the label, the board needs
+																// to be able to update it each time board.Merge()
+																// is called and the stack depth is changed
 		grid.attach(board,GAMEBOARD_X,GAMEBOARD_Y,GAMEBOARD_W,GAMEBOARD_H);
 		
 		// Create buttons that represent moves	
 		move_a=new MoveButton(pattern_a);
+		move_a.set_sensitive(false);
 		move_a.clicked.connect(()=>{ board.Merge(pattern_a); });
 		grid.attach(move_a,MOVE_A_X,MOVE_A_Y,MOVE_A_W,MOVE_A_H);
 		move_b=new MoveButton(pattern_b);
+		move_b.set_sensitive(false);
 		move_b.clicked.connect(()=>{ board.Merge(pattern_b); });
 		grid.attach(move_b,MOVE_B_X,MOVE_B_Y,MOVE_B_W,MOVE_B_H);
 		move_c=new MoveButton(pattern_c);
+		move_c.set_sensitive(false);
 		move_c.clicked.connect(()=>{ board.Merge(pattern_c); });
 		grid.attach(move_c,MOVE_C_X,MOVE_C_Y,MOVE_C_W,MOVE_C_H);
 		move_d=new MoveButton(pattern_d);
+		move_d.set_sensitive(false);
 		move_d.clicked.connect(()=>{ board.Merge(pattern_d); });
 		grid.attach(move_d,MOVE_D_X,MOVE_D_Y,MOVE_D_W,MOVE_D_H);
 		
@@ -305,7 +327,8 @@ class Game
 		
 		// What a silly name, but I wasn't using prefixes so it would be out of
 		// place to us lblDepth now
-		current_depth_label=new Gtk.Label("Current Depth");
+		current_depth_label=new Gtk.Label(CURRENT_DEPTH_LABEL);
+		current_depth_label.set_justify(Gtk.Justification.CENTER);
 		grid.attach(current_depth_label,3,2,1,1);
 	}
 	
@@ -319,7 +342,8 @@ class Game
 		for (int i=0; i<depth; i++)
 		{
 			// pick a random pattern
-			int which_pattern=Random.int_range(0,3);
+			int which_pattern=Random.int_range(0,4); // 4 instead of 3 because Glib's random int function
+														// pick from [start] to [end-1]
 			
 			// if it's the same pattern as before, re-roll
 			// else push the pattern to the stack
@@ -339,6 +363,30 @@ class Game
 				
 				previous_pattern=which_pattern;
 			}
+		}
+		
+		// disable the new game button while a game is in progress
+		// enable the move buttons
+		new_game.set_sensitive(false);
+		move_a.set_sensitive(true);
+		move_b.set_sensitive(true);
+		move_c.set_sensitive(true);
+		move_d.set_sensitive(true);
+	}
+	
+	// updates the Current Depth label with the depth of the
+	// board's stack member object
+	public void UpdateDepth()
+	{
+		int current_depth=board.StackDepth();
+		current_depth_label.set_label(CURRENT_DEPTH_LABEL+current_depth.to_string());
+		if (current_depth==0)
+		{
+			new_game.set_sensitive(true);
+			move_a.set_sensitive(false);
+			move_b.set_sensitive(false);
+			move_c.set_sensitive(false);
+			move_d.set_sensitive(false);
 		}
 	}
 }

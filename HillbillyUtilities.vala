@@ -6,6 +6,8 @@
 \****/
 public class Stack<G> // G stands for "Generic"
 {
+	private int depth;
+
 	// create a data type that is aware of the previous guy in line
 	private class Node<G>		// made this a class because valac complains when I try
 	{							// to use the new operator on it as a struct
@@ -16,23 +18,35 @@ public class Stack<G> // G stands for "Generic"
 	// pointer to the top item on the stack
 	private Node<G> top;
 
+	public Stack()
+	{
+		depth=0;
+	}
+
 	public void Push(G item)
 	{
 		Node<G> tmp=new Node<G>();
 		tmp.next=top;
 		tmp.item=item;
 		top=tmp;
+		depth++;
 	}
 	
 	public G Pop()
 	{	
 		G item=top.item;
 		top=top.next;
+		depth--;
 		return item;
 	}
 	
 	public G Peek()
 	{
 		return top.item; // TODO: this is a problem if the stack is empty, isn't it?
+	}
+	
+	public int Depth()
+	{
+		return depth;
 	}
 }
